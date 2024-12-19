@@ -3,6 +3,10 @@ name = "play-net"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]] # ping
+name = "ping"
+path = "src/ping.rs"
+
 [dependencies]
 libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros"] }
 futures = "0.3"
