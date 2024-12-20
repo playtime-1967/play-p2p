@@ -24,12 +24,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build();
 
     // Tell the swarm to listen on all interfaces and a random, OS-assigned port.
-    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
+    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?; 
 
     //Dial the peer identified by the multi-address given as the second command-line argument, if any.
     if let Some(addr) = std::env::args().nth(1) {
         let remote: Multiaddr = addr.parse()?;
-        swarm.dial(remote)?; //Initiates an outbound connection to the remote peer at the specified Multiaddr.
+        swarm.dial(remote)?; //Initiates an outbound connection to the remote peer at the specified Multiaddr. Multiaddr is a standard way to represent network addresses in a protocol-agnostic format.
         println!("Dialed {addr}")
     }
 
@@ -38,10 +38,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match swarm.select_next_some().await {
             //Triggered when the swarm starts listening on a new address.
             SwarmEvent::NewListenAddr { address, .. } => println!("Listening on {address:?}"),
-
             //Handles events specific to the ping protocol (e.g., receiving a ping response or timeout)
             SwarmEvent::Behaviour(event) => println!("{event:?}"),
-            connection_events => println!("{connection_events:?}"),
+            //like: establish connection, refuse connection.
+            connection_event => println!("{connection_event:?}"),
         }
     }
 

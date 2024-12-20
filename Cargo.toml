@@ -7,8 +7,15 @@ edition = "2021"
 name = "ping"
 path = "src/ping.rs"
 
+[[bin]] # chat
+name = "chat"
+path = "src/chat.rs"
+
 [dependencies]
-libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros"] }
+libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros","tokio",
+"gossipsub", "mdns","quic"] }
 futures = "0.3"
 async-std = { version = "1.13", features = ["attributes"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
