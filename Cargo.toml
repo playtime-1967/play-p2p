@@ -11,9 +11,13 @@ path = "src/ping.rs"
 name = "chat"
 path = "src/chat.rs"
 
+[[bin]] # distributed key value store
+name = "diskeyval"
+path = "src/distributed-key-value-store.rs"
+
 [dependencies]
 libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros","tokio",
-"gossipsub", "mdns","quic"] }
+"gossipsub", "mdns","quic","kad"] }
 futures = "0.3"
 async-std = { version = "1.13", features = ["attributes"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
