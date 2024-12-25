@@ -15,11 +15,17 @@ path = "src/chat.rs"
 name = "diskeyval"
 path = "src/distributed-key-value-store.rs"
 
+[[bin]] # file sharing
+name = "fish"
+path = "src/file-sharing.rs"
+
 [dependencies]
 libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros","tokio",
-"gossipsub", "mdns","quic","kad"] }
+"gossipsub", "mdns","quic","kad", "request-response", "cbor"] }
 futures = "0.3"
 async-std = { version = "1.13", features = ["attributes"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio = { version = "1.40", features = ["full"] }
 async-trait = "0.1"
+clap={ version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }

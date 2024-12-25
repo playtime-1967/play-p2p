@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_tcp(
             tcp::Config::default(),
             noise::Config::new, //a cryptographic handshake protocol that ensures secure communication between peers
-            yamux::Config::default,
+            yamux::Config::default, //it enables multiple parallel streams on a single TCP connection
         )?
         .with_quic()
         .with_behaviour(|key| {
