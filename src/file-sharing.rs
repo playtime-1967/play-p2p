@@ -106,6 +106,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+//--------------------------------------------- Clap Setup
+
 #[derive(Parser, Debug)]
 #[clap(name = "libp2p file sharing example")]
 struct ArgDef {
@@ -136,3 +138,8 @@ enum CliAction {
         name: String,
     },
 }
+
+//How to run: Running three or more nodes
+//1- cargo run --bin fish -- --listen-address /ip4/127.0.0.1/tcp/40837 --secret-key-seed 10 provide --path src/main.rs --name main
+//2- cargo run --bin fish -- --listen-address /ip4/127.0.0.1/tcp/40839  provide --path plan.md --name plan
+//3- cargo run --bin fish -- --peer /ip4/127.0.0.1/tcp/40839/p2p/{peer_id_of_a_provider} get --name plan
