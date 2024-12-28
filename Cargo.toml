@@ -23,9 +23,13 @@ path = "src/file-sharing.rs"
 name = "ipfs"
 path = "src/ipfs-kad.rs"
 
+[[bin]] # ipfs with gossip
+name = "psgs"
+path = "src/ipfs-gossip.rs"
+
 [dependencies]
 libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros","tokio",
-"gossipsub", "mdns","quic","kad", "request-response", "cbor", "rsa"] }
+"gossipsub", "mdns","quic","kad", "request-response", "cbor", "rsa","pnet","identify"] }
 futures = "0.3"
 async-std = { version = "1.13", features = ["attributes"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -34,3 +38,5 @@ async-trait = "0.1"
 clap={ version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0"
+either = "1.13"
+dotenv = "0.15"
