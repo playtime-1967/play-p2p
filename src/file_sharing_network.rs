@@ -173,10 +173,10 @@ pub mod network {
                 .expect("Command receiver not to be dropped.");
         }
     }
-    //------------------------------------
+    
+    //------------------------------------------------
     //EventLoop: The core driver of the network logic, processing commands and handling events.
     //Wait for commands from the Client... Process events from the swarm (e.g., peer discovery, incoming file requests).
-
     pub(crate) struct EventLoop {
         swarm: Swarm<Behaviour>,
         command_receiver: mpsc::Receiver<Command>,

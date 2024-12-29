@@ -219,3 +219,7 @@ fn handle_input_line(kademlia: &mut kad::Behaviour<MemoryStore>, line: String) {
 //1- cargo run --bin diskeyval
 //wait for a few seconds
 //2- cargo run --bin diskeyval
+//In terminal one, type PUT my-key my-value
+//In terminal two, type GET my-key
+//PUT_PROVIDER my-key
+// /GET_PROVIDERS my-key
