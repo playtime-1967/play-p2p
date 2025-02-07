@@ -21,7 +21,6 @@ Terminal 1:
 `cargo run --bin chat`  
 
 Terminal 2 (or more):  
-Start another instance of the application.  
 `cargo run --bin chat`  
 
 Wait until you see peer discovery logs indicating that peers have been found.  

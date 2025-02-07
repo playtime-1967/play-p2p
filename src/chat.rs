@@ -1,11 +1,4 @@
-#![allow(warnings)]
-
-use std::{
-    collections::hash_map::DefaultHasher,
-    error::Error,
-    hash::{Hash, Hasher},
-    time::Duration,
-};
+use std::{error::Error, time::Duration};
 
 use futures::stream::StreamExt;
 use libp2p::{
@@ -14,9 +7,8 @@ use libp2p::{
     tcp, yamux,
 };
 use tokio::{io, io::AsyncBufReadExt, select};
-use tracing_subscriber::EnvFilter;
 
-// We create a custom network behaviour that combines Gossipsub and Mdns.
+//a custom network behaviour that combines Gossipsub and Mdns.
 #[derive(NetworkBehaviour)]
 struct MyBehaviour {
     gossipsub: gossipsub::Behaviour,
@@ -25,72 +17,48 @@ struct MyBehaviour {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .init();
-
     let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
             tcp::Config::default(),
-            noise::Config::new, //a cryptographic handshake protocol that ensures secure communication between peers
-            yamux::Config::default, //it enables multiple parallel streams on a single TCP connection
+            noise::Config::new, //cryptographic handshake, ensures secure communication between peers.
+            yamux::Config::default, //parallel streams.
         )?
         .with_quic()
         .with_behaviour(|key| {
-            // To content-address message, we can take the hash of message and use it as an ID.
-            let message_id_fn = |message: &gossipsub::Message| {
-                let mut s = DefaultHasher::new();
-                message.data.hash(&mut s);
-                gossipsub::MessageId::from(s.finish().to_string())
-            };
-
-            // Set a custom gossipsub configuration
-            let gossipsub_config = gossipsub::ConfigBuilder::default()
-                .heartbeat_interval(Duration::from_secs(10)) // This is set to aid debugging by not cluttering the log space
-                .validation_mode(gossipsub::ValidationMode::Strict) // This sets the kind of message validation. The default is Strict (enforce message signing)
-                .message_id_fn(message_id_fn) // content-address messages. No two messages of the same content will be propagated.
-                .build()
-                .map_err(|msg| io::Error::new(io::ErrorKind::Other, msg))?; // Temporary hack because `build` does not return a proper `std::error::Error`.
-
-            // build a gossipsub network behaviour
             let gossipsub = gossipsub::Behaviour::new(
-                gossipsub::MessageAuthenticity::Signed(key.clone()), //Determines if published messages should be signed or not.
-                gossipsub_config,
+                gossipsub::MessageAuthenticity::Signed(key.clone()), //sign published messages.
+                gossipsub::ConfigBuilder::default()
+                    .validation_mode(gossipsub::ValidationMode::Strict) //validate message signing.
+                    .build()?,
             )?;
 
             let mdns =
                 mdns::tokio::Behaviour::new(mdns::Config::default(), key.public().to_peer_id())?;
             Ok(MyBehaviour { gossipsub, mdns })
         })?
-        .with_swarm_config(|cfg| cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))) //keep connections open indefinitely (u64::MAX) when idle
+        .with_swarm_config(|cfg| cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))) //keep connections open when idle
         .build();
 
-    // Create a Gossipsub topic
-    let topic = gossipsub::IdentTopic::new("chat-net");
-    // subscribes to our topic
+    let topic = gossipsub::IdentTopic::new("paly-p2p-chat");
     swarm.behaviour_mut().gossipsub.subscribe(&topic)?;
 
-    // Read full lines from stdin
-    let mut stdin = io::BufReader::new(io::stdin()).lines();
-
-    // Listen on all interfaces and whatever port the OS assigns
+    //listen on all interfaces and whatever port the OS assigns.
     swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
     swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 
-    println!("Enter messages via STDIN and they will be sent to connected peers using Gossipsub");
+    let mut stdin = io::BufReader::new(io::stdin()).lines(); //read full lines from stdin
 
-    // Kick it off
     loop {
         select! {
-            Ok(Some(line)) = stdin.next_line() => {
+            Ok(Some(line)) = stdin.next_line() => { //publish the message.
                 if let Err(e) = swarm
                     .behaviour_mut().gossipsub
                     .publish(topic.clone(), line.as_bytes()) {
                     println!("Publish error: {e:?}");
                 }
             }
-            event = swarm.select_next_some() => match event {
+            event = swarm.select_next_some() => match event { //handle network behaviour's events.
                 SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Discovered(list))) => {
                     for (peer_id, _multiaddr) in list {
                         println!("mDNS discovered a new peer: {peer_id}");
@@ -110,7 +78,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })) => println!(
                         "Received message: '{}' with id: {id} from peer: {peer_id}",
                         String::from_utf8_lossy(&message.data),
-                        //Save the message locally (e.g., SQLite, file, etc.)
+                        //can persist the message locally (SQLite, file, etc.)
                     ),
                 SwarmEvent::NewListenAddr { address, .. } => {
                     println!("Local node is listening on {address}");
@@ -120,8 +88,3 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 }
-
-//How to run: Running two nodes
-//1- cargo run --bin chat
-//wait for a few seconds
-//2- cargo run --bin chat
