@@ -15,26 +15,22 @@ reads user input from stdin and broadcasts it to connected peers.
 
 **How to run**:  
 
-Open two or more terminals.  
-
-Terminal 1:  
-`cargo run --bin chat`  
-
-Terminal 2 (or more):  
+Open two or more terminals and run:  
 `cargo run --bin chat`  
 
 Wait until you see peer discovery logs indicating that peers have been found.  
-Once discovered, the terminals can exchange messages with each other.  
+Once discovered, the terminals can exchange messages with each other.
 
 Hi!...  
 Ola!...
 
-
-```The system handles several types of logs/events, including:  
+The application handles several types of logs/events, including:   
+``` 
 Local node is listening on ...  
 mDNS discovered a new peer: ...  
 Dialing { peer_id:...}  
 IncomingConnection { connection_id:... }  
 ConnectionClosed { peer_id:...}  
 Received message {...}  
-ConnectionClosed { peer_id:...}  ```
+ConnectionClosed { peer_id:...} 
+```
