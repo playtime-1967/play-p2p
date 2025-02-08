@@ -15,13 +15,9 @@ path = "src/distributed-key-value-store.rs"
 name = "fish"
 path = "src/file-sharing.rs"
 
-[[bin]] # ipfs with kad
-name = "ipfs"
-path = "src/ipfs-kad.rs"
-
-[[bin]] # ipfs with gossip
-name = "psgs"
-path = "src/ipfs-gossip.rs"
+[[bin]] # ipfs pub sub
+name = "ipfs-pubsub"
+path = "src/ipfs-pubsub.rs"
 
 [dependencies]
 libp2p = { version = "0.54", features = ["tcp", "tls", "dns", "async-std", "noise", "yamux", "websocket", "ping", "macros","tokio",
