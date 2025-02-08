@@ -76,7 +76,7 @@ After installing the IPFS daemon CLI, follow these steps to run the app:
 
 `ipfs daemon --enable-pubsub-experiment`  
 
-![ipfs daemon terminal](https://github.com/playtime-1967/play-p2p/raw/ipfs-daemon.jpg)
+![ipfs daemon terminal](https://github.com/playtime-1967/play-p2p/blob/master/raw/ipfs-daemon.jpg)
 
 2- Run IPFS subscriber in a terminal (where "play-ipfs" is the topic name set as an environment variable in the app):  
 
