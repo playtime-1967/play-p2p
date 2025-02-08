@@ -3,16 +3,12 @@ name = "play-net"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]] # ping
-name = "ping"
-path = "src/ping.rs"
-
 [[bin]] # chat
 name = "chat"
 path = "src/chat.rs"
 
 [[bin]] # distributed key value store
-name = "diskeyval"
+name = "key-val-store"
 path = "src/distributed-key-value-store.rs"
 
 [[bin]] # file sharing

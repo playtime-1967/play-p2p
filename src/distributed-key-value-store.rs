@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use futures::stream::StreamExt;
 use libp2p::{
     kad,
@@ -8,14 +6,14 @@ use libp2p::{
     swarm::{NetworkBehaviour, SwarmEvent},
     tcp, yamux,
 };
+use std::error::Error;
 use tokio::{
     io::{self, AsyncBufReadExt},
     select,
     time::Duration,
 };
-use tracing_subscriber::EnvFilter;
 
-// We create a custom network behaviour that combines Kademlia and mDNS.
+//combining mDNS and Kademlia allows nodes to function both locally and globally.
 #[derive(NetworkBehaviour)]
 struct MyBehaviour {
     kademlia: kad::Behaviour<MemoryStore>,
@@ -24,11 +22,7 @@ struct MyBehaviour {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .try_init();
-
-    let mut swarm = libp2p::SwarmBuilder::with_new_identity() //Creates a new peer identity with a cryptographic key pair for secure communication.
+    let mut swarm = libp2p::SwarmBuilder::with_new_identity()
         .with_tokio()
         .with_tcp(
             tcp::Config::default(),
@@ -36,9 +30,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             yamux::Config::default,
         )?
         .with_behaviour(|key| {
-            //Combining mDNS and Kademlia allows your node to function both locally and globally:
-            //mDNS helps bootstrap connections in small, local networks.
-            //Kademlia handles long-term peer discovery and routing in a larger network.
             Ok(MyBehaviour {
                 kademlia: kad::Behaviour::new(
                     key.public().to_peer_id(),
@@ -50,21 +41,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 )?,
             })
         })?
-        .with_swarm_config(|cfg| cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX))) //keep connections open indefinitely (u64::MAX) when idle
+        .with_swarm_config(|cfg| cfg.with_idle_connection_timeout(Duration::from_secs(u64::MAX)))
         .build();
 
-    //Mode::Server, means that the node will both: 1- Accept and respond to incoming requests (e.g., GET or PUT).
-    //2- Participate in routing by storing data and forwarding requests to other peers in the network.
-    //Whereas Mode::Client does only the first item.
+    //Client Mode: nodes only handle incoming requests without participating in routing and forwarding requests to other peers.
     swarm.behaviour_mut().kademlia.set_mode(Some(Mode::Server));
 
-    // Read full lines from stdin
-    let mut stdin = io::BufReader::new(io::stdin()).lines();
-
-    // Listen on all interfaces and whatever port the OS assigns.
     swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 
-    // Kick it off.
+    let mut stdin = io::BufReader::new(io::stdin()).lines();
     loop {
         select! {
         Ok(Some(line)) = stdin.next_line() => {
@@ -77,9 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Discovered(list))) => {
                 for (peer_id, multiaddr) in list {
                     println!("mDNS discovered a new peer: {peer_id} {multiaddr}");
-                    //In order for a node to join the DHT... When a remote peer initiates a connection and that peer is not yet in the routing table, the Kademlia
-                    //behaviour must be informed of an address on which that peer is listening for connections before it can be added to the routing table from where
-                    //it can subsequently be discovered by all peers in the DHT.
+                    //joining a node to the DHT where it can subsequently be discovered by all peers in the DHT.
                     swarm.behaviour_mut().kademlia.add_address(&peer_id, multiaddr);
                 }
             }
@@ -182,14 +165,13 @@ fn handle_input_line(kademlia: &mut kad::Behaviour<MemoryStore>, line: String) {
                     return;
                 }
             };
-            //A record to store in the DHT.
             let record = kad::Record {
                 key,
                 value,
                 publisher: None,
                 expires: None,
             };
-            //Stores a record in the DHT, locally as well as at the nodes closest to the key as per the xor distance metric.
+            //stores a record in the DHT both locally and at nodes closest to the key, based on the XOR distance metric.
             kademlia
                 .put_record(record, kad::Quorum::One)
                 .expect("Failed to store record locally.");
@@ -204,7 +186,7 @@ fn handle_input_line(kademlia: &mut kad::Behaviour<MemoryStore>, line: String) {
                     }
                 }
             };
-            //publishes a provider record with the given key and identity of the local node to the peers closest to the key
+            //establish the local node as a provider of a value for the given key.
             kademlia
                 .start_providing(key)
                 .expect("Failed to start providing key");
@@ -214,12 +196,3 @@ fn handle_input_line(kademlia: &mut kad::Behaviour<MemoryStore>, line: String) {
         }
     }
 }
-
-//How to run: Running two nodes
-//1- cargo run --bin diskeyval
-//wait for a few seconds
-//2- cargo run --bin diskeyval
-//In terminal one, type PUT my-key my-value
-//In terminal two, type GET my-key
-//PUT_PROVIDER my-key
-// /GET_PROVIDERS my-key
