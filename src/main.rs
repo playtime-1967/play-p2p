@@ -1,5 +1,3 @@
-#![allow(warnings)]
 fn main(){
-
-    println!("Hello play-net!");
+    println!("Hello play-p2p!");
 }
