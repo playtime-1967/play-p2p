@@ -1,6 +1,5 @@
 Built a peer-to-peer networking playground with [rust-libp2p](https://github.com/libp2p/rust-libp2p).
 
-**Samples**:   
 
 
 1- **Chat application**  
