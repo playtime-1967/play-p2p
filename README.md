@@ -17,7 +17,9 @@ Reads user input from stdin and broadcasts it to connected peers.
 
 Open two or more terminals and run:  
 
-`cargo run --bin chat`  
+```
+cargo run --bin chat
+```  
 
 Wait until you see peer discovery logs indicating that peers have been found.  
 Once discovered, the terminals can exchange messages with each other.
@@ -51,7 +53,9 @@ Finds peers that have stored the key.
 
 Open two or more terminals:  
 
-`cargo run --bin key-val-store`   
+```
+cargo run --bin key-val-store
+```   
 
 ``` 
 Terminal 1, type PUT my-key my-value  
@@ -74,25 +78,35 @@ To run the app, install the IPFS daemon CLI (Kubo) from [here](https://docs.ipfs
 After installing the IPFS daemon CLI, follow these steps to run the app:  
 1- Run IPFS daemon in a terminal:  
 
-`ipfs daemon --enable-pubsub-experiment`  
+```
+ipfs daemon --enable-pubsub-experiment
+```    
 
 ![ipfs daemon terminal](https://github.com/playtime-1967/play-p2p/blob/master/raw/ipfs-daemon.jpg)
 
 2- Run IPFS subscriber in a terminal (where "play-ipfs" is the topic name set as an environment variable in the app):  
 
-`ipfs pubsub sub play-ipfs`  
+``` 
+ipfs pubsub sub play-ipfs
+```  
 
 3- Run the app as both a subscriber and publisher in a terminal (Locate the IP and IPFS_PeerId in the IPFS daemon's terminal):  
 
-`cargo run --bin ipfs-pubsub {IP}/p2p/{IPFS_PeerId}` 
+```
+cargo run --bin ipfs-pubsub {IP}/p2p/{IPFS_PeerId}
+``` 
 
 For example:  
 
-`cargo run --bin ipfs-pubsub /ip4/127.0.0.1/tcp/4001/p2p/12D3KooWHT8vxeYkGSYuNfpa9JnR5jSPwSYTXgYXuFWqEEZ7XTR3`  
+```
+cargo run --bin ipfs-pubsub /ip4/127.0.0.1/tcp/4001/p2p/12D3KooWHT8vxeYkGSYuNfpa9JnR5jSPwSYTXgYXuFWqEEZ7XTR3
+```  
 
 4- Run the IPFS Publisher in a terminal (the data to be published is sent in the HTTP request body as multipart/form-data):  
 
-`ipfs pubsub pub play-ipfs {file_path}`  
+``` 
+ipfs pubsub pub play-ipfs {file_path}
+```  
 
 Now we have two publishers and two subscribers. The app publishes plain text, while the IPFS Publisher publishes files as mentioned above.  
 
